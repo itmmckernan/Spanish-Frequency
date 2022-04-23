@@ -1,0 +1,29 @@
+<DOCTYPE HTML>
+<body>
+    <textarea id="main" onchange="wrapper()">
+
+    </textarea>
+    <div id="mainOut"></div>
+    <script>
+        var mainFreq = [];
+        var mainDict = [];
+        fetch('https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/es/es_full.txt').then(res => res.text()).then(text => text.split('\n').map(e => e.split(' '))).then(e => mainFreq = e);
+        fetch('https://raw.githubusercontent.com/words/an-array-of-spanish-words/master/index.json').then(res => res.json()).then(a => mainDict = a);
+        function getFreq(word){
+            let index = mainFreq.findIndex(e => e[0] == word);
+            if (index == -1){
+                return -1
+            }
+            return Number(mainFreq[mainFreq.findIndex(e => e[0] == word)][1]);
+        }
+        
+        function wrapper(){
+            document.getElementById('mainOut').innerHTML = "loading";
+            let freq = document.getElementById('main').value.split(' ').map(e => e.toLowerCase().replace(/[^a-z]/gi, '')).filter((v, i, a) => a.indexOf(v) === i).map(e => [e, getFreq(e)]).filter(e => e[1] != -1).filter(e => mainDict.indexOf(e[0]) != -1).sort((a, b) => a[1]-b[1]);
+            let outString = ""; 
+            for(let i = 0; i < 25; i++)
+                outString += `${i+1}. <a href=\"https://www.spanishdict.com/translate/${freq[i][0]}\" target="_blank"> ${freq[i][0]} </a>    Frequency: ${freq[i][1]}<br>`;
+            document.getElementById('mainOut').innerHTML = outString;
+        }
+    </script>
+</body>
